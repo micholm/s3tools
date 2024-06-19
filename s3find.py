@@ -1,9 +1,8 @@
 import argparse
 import boto3
 import os
-from urllib.parse import urlparse
 
-from src.s3 import S3Location
+from s3tools.s3 import S3Location
 
 argparser = argparse.ArgumentParser(
     prog="s3find", 
@@ -12,6 +11,7 @@ argparser = argparse.ArgumentParser(
 argparser.add_argument("url", type=str, help="root url to use")
 argparser.add_argument("string", type=str, help="search string")
 argparser.add_argument("--extension", action="store_true", help="use if search string is a file extension")
+argparser.add_argument("--ignore-keyword", help="will ignore any path containing this keyword")
 argparser.add_argument("--no-count", action="store_true", help="do not print count, useful for programmatic return")
 
 if __name__ == "__main__":
@@ -26,10 +26,9 @@ if __name__ == "__main__":
         s3_client = boto3.client('s3', endpoint_url=os.environ.get("AWS_ENDPOINT_URL_S3"))
         s3location = S3Location(url)
 
-        # urlbit = urlparse(url, allow_fragments=False)
-        r = s3location.find_recursive(s3_client, searchstr, isext)
+        r = s3location.find_recursive(s3_client, searchstr, isext, args.ignore_keyword)
         for line in r:
-            print(r)
+            print(f"s3://{line[0]}/{line[1]}")
         if not nocount:
             print(f"returned: {len(r)}")
         exit(0)
