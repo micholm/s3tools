@@ -22,7 +22,29 @@ class S3Location:
     def is_s3(self):
         return self.scheme == 's3'
     
-    def find_recursive(self, client:boto3.client, searchstring:str, extension:bool=False, ignore_keyword=None, verbose=False) -> List[str]:
+    def find_recursive(self, 
+                       client:boto3.client, 
+                       searchstring:str, 
+                       extension:bool=False, 
+                       ignore_keyword=None, 
+                       verbose=False,
+                       ignore_case=True) -> List[str]:
+        
+        def keymatch(path, key, ext, case_insensitive, ignore):
+            res = False
+            p = path.lower() if case_insensitive else path
+            k = key.lower() if case_insensitive else key
+            ig = ignore.lower() if ignore is not None and case_insensitive else ignore
+            if ext:
+                if p.endswith(k):
+                    res = True
+            else:
+                if p.find(k) >= 0:
+                    res = True
+            if ig is not None and p.find(ig) >= 0:
+                res = False
+            return res
+        
         r = []
         paginator = client.get_paginator('list_objects')
         response_iterator = paginator.paginate(Bucket=self.bucket, Prefix=self.key)
@@ -30,19 +52,19 @@ class S3Location:
         for response in response_iterator:
             for object_data in response['Contents']:
                 key = object_data['Key']
-                store = False
+                # store = False
 
-                if extension:
-                    if key.endswith(searchstring):
-                        store = True
-                else:
-                    if key.find(searchstring) >= 0:
-                        store = True
+                # if extension:
+                #     if key.endswith(searchstring):
+                #         store = True
+                # else:
+                #     if key.find(searchstring) >= 0:
+                #         store = True
                 
-                if ignore_keyword is not None and key.find(ignore_keyword) >= 0:
-                    store = False
+                # if ignore_keyword is not None and key.find(ignore_keyword) >= 0:
+                #     store = False
                 
-                if store:
+                if keymatch(key, searchstring, extension, ignore_case, ignore_keyword):
                     r.append([self.bucket, f"{self.key}{key}"])
                 elif verbose:
                     print(f"ignoring key: {key}")

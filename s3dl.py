@@ -14,6 +14,7 @@ argparser.add_argument("string", type=str, help="search string")
 argparser.add_argument("--out", type=str, help="download location", default=os.getcwd())
 argparser.add_argument("--extension", action="store_true", help="use if search string is a file extension")
 argparser.add_argument("--ignore-keyword", help="will ignore any path containing this keyword")
+argparser.add_argument("--ignore-case", action="store_true", help="ignore case for seach and ignore terms")
 argparser.add_argument("--randomise-result", action="store_true", help="if true, list of results found will be in randomised order")
 argparser.add_argument("--randomise-result-count", type=int, default=-1, help="how many results to collect from randomised list. -1 for whole list")
 
@@ -22,7 +23,11 @@ if __name__ == "__main__":
     args = argparser.parse_args()
 
     loc = S3Location(args.url)
-    r = loc.find_recursive(s3_client, args.string, args.extension, ignore_keyword=args.ignore_keyword)
+    r = loc.find_recursive(s3_client, 
+                           args.string, 
+                           args.extension, 
+                           ignore_keyword=args.ignore_keyword, 
+                           ignore_case=args.ignore_case)
 
     i = len(r)
     if args.randomise_result:
