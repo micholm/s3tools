@@ -1,23 +1,24 @@
-import argparse
+# import argparse
 import boto3
 import os
+from random import shuffle
 
 from s3tools.s3 import S3Location
+from s3tools.common import SharedProgram
 
-argparser = argparse.ArgumentParser(
-    prog="s3find", 
-    description="recursivly searches from an s3 uri and returns full-formed s3 uri's if search term is found.")
+prog = SharedProgram("s3find", 
+                     "recursivly searches from an s3 uri and \
+                      returns full-formed s3 uri's if search term is found.")
 
-argparser.add_argument("url", type=str, help="root url to use")
-argparser.add_argument("string", type=str, help="search string")
-argparser.add_argument("--extension", action="store_true", help="use if search string is a file extension")
-argparser.add_argument("--ignore-keyword", type=str, help="will ignore any path containing this keyword")
-argparser.add_argument("--no-count", action="store_true", help="do not print count, useful for programmatic return")
-argparser.add_argument("--ignore-case", action="store_true", help="ignore case for seach and ignore terms")
+prog.args.add_argument(
+    "--no-count", 
+    action="store_true", 
+    help="do not print count, useful for programmatic return")
 
 if __name__ == "__main__":
-    args = argparser.parse_args()
-    
+    args = prog.parse_args()
+    prog.print_preamble()
+
     url = args.url
     searchstr = args.string
     isext = args.extension
@@ -29,10 +30,22 @@ if __name__ == "__main__":
 
         r = s3location.find_recursive(s3_client, searchstr, isext, 
                                       args.ignore_keyword, ignore_case=args.ignore_case)
-        for line in r:
-            print(f"s3://{line[0]}/{line[1]}")
+        
+        i = len(r)
+        count = len(r)
+        if args.randomise_result:
+            shuffle(r)
+            if args.randomise_result_count > 0:
+                i = count = args.randomise_result_count
+
+        while i > 0:
+            i -= 1
+            print(f"s3://{r[i][0]}/{r[i][1]}")
         if not nocount:
-            print(f"returned: {len(r)}")
+            if args.randomise_result_count > 0:
+                print(f"returned {count}/{len(r)}")
+            else:
+                print(f"returned: {count}")
         exit(0)
     except Exception as ex:
         print(ex)

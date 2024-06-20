@@ -34,7 +34,7 @@ python s3dl.py s3://<bucket> jpg --extension
 ```
 # download a random sample of jpgs in bucket, ignoring ant paths with 'failed'
 python s3dl.py \
-    s3://<bucket> \
+    s3://<bucket>/key/to/look/in \
     jpg \
     --extension \
     --randomise-result \
@@ -67,4 +67,15 @@ options:
                         will ignore any path containing this keyword
   --no-count            do not print count, useful for programmatic return
   --ignore-case         ignore case for seach and ignore terms
+```
+### examples
+```
+# find list and pipe to txt file
+python s3find.py 
+    s3://<bucket>/key/to/look/in \
+    JPG \
+    --extension \
+    --ignore-case \
+    --ignore-keyword <term> \
+    > list.txt
 ```
