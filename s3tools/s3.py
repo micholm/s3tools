@@ -54,7 +54,7 @@ class S3Location:
                 key = object_data['Key']
 
                 if keymatch(key, searchstring, extension, ignore_case, ignore_keyword):
-                    r.append([self.bucket, f"{self.key}{key}"])
+                    r.append([self.bucket, key])
                 elif verbose:
                     print(f"ignoring key: {key}")
         return r
