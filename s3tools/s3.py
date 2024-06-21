@@ -11,7 +11,7 @@ class S3Location:
             raise Exception(f"not a valid s3 url: {url}")
         
         self.bucket = urlbit.netloc
-        self.key = urlbit.path[1:0]
+        self.key = urlbit.path[1:]
 
     def get_formed_url(self)->str:
         return f"{self.scheme}://{self.bucket}{self.key}"

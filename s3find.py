@@ -17,7 +17,6 @@ prog.args.add_argument(
 
 if __name__ == "__main__":
     args = prog.parse_args()
-    prog.print_preamble()
 
     url = args.url
     searchstr = args.string
@@ -36,7 +35,7 @@ if __name__ == "__main__":
         if args.randomise_result:
             shuffle(r)
             if args.randomise_result_count > 0:
-                i = count = args.randomise_result_count
+                i = count = min(args.randomise_result_count, i)
 
         while i > 0:
             i -= 1

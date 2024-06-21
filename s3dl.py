@@ -33,7 +33,7 @@ if __name__ == "__main__":
     if args.randomise_result:
         shuffle(r)
         if args.randomise_result_count > 0:
-            i = args.randomise_result_count
+            i = min(args.randomise_result_count, i)
 
     os.makedirs(args.out, exist_ok=True)
     print(f"downloading {i}/{len(r)} files")
